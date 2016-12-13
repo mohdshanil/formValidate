@@ -9,9 +9,10 @@
     html, body{
         margin: 0;
     }
-    .signup-container{ac
+    .signup-container{
         width: fit-content;
-        background-color: #DA7A63;
+        height: fit-content;
+        background-color: #DCDCDC;
         padding: 15px;
         margin: auto;
         position: absolute;
@@ -27,6 +28,7 @@
         display: block;
         clear: both;
         margin: 15px;
+        margin-bottom: 5px;
         width: 300px;
         padding: 10px;
         font-size: 14px;
@@ -34,11 +36,16 @@
     }
     #signup-form input.submit{
         width: 92%;
-        margin: 0px auto;
+        margin: 15px auto;
         padding: 12px;
         border-radius: 2px;
         background: #679463;
         color: #fff;
+    }
+    .error{
+        float: right;
+        margin: 0px 16px 5px;
+        color: #E03F3F;
     }
     </style>
 </head>
@@ -58,7 +65,19 @@
 
 (function ( $ ) {
 
-    $.fn.formValidate = function( options ) {
+  $.fn.extend({
+        formValidate: function(options) {
+            options = $.extend( {}, $.formValidate.defaults, options );
+
+            this.each(function() {
+                new $.formValidate($(this),options);
+            });
+            return this;
+        }
+    });
+
+
+    $.formValidate = function( options ) {
 
 
         // Default options.
@@ -70,100 +89,125 @@
             focusFirstField     : false,
             hideErrorOnChange   : true,
             skipHiddenFields    : true,
-            assyncPattern      : true,
-            assyncUrl          : String
+            assyncPattern       : true,
+            assyncUrl           : ''
         }, options );
 
-        //match email address
-var emailRegex = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$';
-//match username
-var usernameRegex = '/^[a-z0-9_-]{3,16}$/';
-//match password
-var passwordRegex = '/^[a-z0-9_-]{6,18}$/';
-//match elements that could contain a phone number
-var phoneNumber = /[0-9-()+]{3,20}/;
+        
+        var emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$/;
+        var usernameRegex = /^[a-z0-9_-]{3,16}$/; 
+        var numberRegex = /^[0-9]*$/;
+        var stringRegex = /^\w+$/;
+        var passwordRegex = /^[a-z0-9_-]{6,18}$/;
+        var phoneNumber = /[0-9-()+]{3,20}/;
 
-
+ 
         var required = true;
-        var valid = true;
         var message = '';
+        //skip hidden field validation
+        var shf = settings.skipHiddenFields  ? ':input[type=hidden]' : '';
 
+        
 
         var inputs = $('form input, form textarea, form select')
-        .not(':input[type=button], :input[type=submit], :input[type=reset]');
+        .not(':input[type=button], :input[type=submit], :input[type=reset]' + ',' + shf );
 
         $(inputs).each(function(k){
-            $('.error').remove();
+            
+            $(this).hideMessage();
+
             var $this = $(this);
             var inputName = $this.attr('name');
             var inputVal = $this.val();
-            if(!inputVal) {
+            
+            if(!inputVal) { // all fields are mandatory
             required = false;
-            //message += 'Please enter your ' + inputName + '\n';
-            $this.after('<span class="error"> Please enter your ' + inputName + '</span>');
+            
+            $this.before('<span class="error"> Please enter your ' + inputName + '</span>');
             return false;
             }
             else{
-                if($(this).attr(settings.AttributeUsed) != undefined) {
+                $(this).textOnly();
+                if($(this).attr(settings.AttributeUsed) != undefined) { //if data-SELECTOR is set on element     
                     switch($(this).attr(settings.AttributeUsed)) {
                     case 'number' :
-                    if(!$.isNumeric(inputVal)) {
-                        valid = false;
-                    }
-                    else
-                        valid = true;
+                    matchRegex = numberRegex;
                     break;
                     case 'string' :
-                    if(!inputVal.match(usernameRegex)) {
-                        valid = false;
-                    }
-                    else
-                        valid = true;
+                    matchRegex = stringRegex;
                     break;
                     case 'email' :
-                    if(!inputVal.match(emailRegex)) {
-                        valid = false;
-                    }
+                    matchRegex = emailRegex;
                     break;
                     case 'password' :
-                    if(!inputVal.match(passwordRegex)) {
-                        valid = false;
-                    }
+                    matchRegex = passwordRegex;
                     break;
                     }
-                    console.log('valid',valid);
-
-                    if(!valid){
-                        $this.after('<span class="error"> Please enter a valid ' + $(this).attr(settings.AttributeUsed) +  '</span>');
+                    if(!inputVal.match(matchRegex)) {
+                        $this.before('<span class="error"> Please enter a valid ' + $(this).attr(settings.AttributeUsed) +  '</span>');                
                         return false;
                     }
-
-
+                         
                 }
-
+                
             }
-
-
-
+                
     });
     return this;
-
+ 
     };
-
-    $.fn.showMessage = function( message ) {
-
+    
+    $.fn.hideMessage = function( message ) {
+        $('.error').remove();
     }
 
+    // option defaults
+    $.formValidate.defaults = {
+            AttributeUsed       : "data-Formvalidate",
+            TriggerUsed         : "blur",
+            scroll              : true,
+            focusFirstField     : false,
+            hideErrorOnChange   : true,
+            skipHiddenFields    : true,
+            assyncPattern       : true,
+            assyncUrl           : ''
+        
+    };
+    $.formValidate.addRules = function ( ruleName, fun, msg){
+        console.log('qqq',ruleName, fun, msg);
+        return $.fn.ruleName = fun;
+    };
 
+ 
 }( jQuery ));
 
 $('form input, form select, form textarea').bind('blur', function(){
-    $("form").formValidate();
+    $("form").formValidate({
+    rules: {
+        txtTextOnly: {
+            required: true,
+            textOnly: true
+        }
+    }    
+});
+
+$.formValidate.addRules("textOnly", 
+                      function(value, element) {
+                        console.log('i am called');
+                          return !/[0-9]*/.test(value);
+                      }, 
+                      "Alpha Characters Only." );
+
+
+
+});
+$('form input, form select, form textarea').bind('keypress', function(){
+    $(this).hideMessage();    
 });
 $('#submit').bind('click', function(){
-    console.log('here');
-    $("form").formValidate();
+    $("form").formValidate();    
 });
+
 
 
 </script>
