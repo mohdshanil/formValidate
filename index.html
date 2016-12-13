@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <title>Form validation plugin</title>
+    <style>
+    html, body{
+        margin: 0;
+    }
+    .signup-container{ac
+        width: fit-content;
+        background-color: #DA7A63;
+        padding: 15px;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        bottom:0;
+        left: 0;
+        right: 0;
+    }
+    #signup-form{
+        padding: 10px;
+    }
+    #signup-form input{
+        display: block;
+        clear: both;
+        margin: 15px;
+        width: 300px;
+        padding: 10px;
+        font-size: 14px;
+        color: #332525;
+    }
+    #signup-form input.submit{
+        width: 92%;
+        margin: 0px auto;
+        padding: 12px;
+        border-radius: 2px;
+        background: #679463;
+        color: #fff;
+    }
+    </style>
+</head>
+<body>
+<section class="signup-container">
+<form action="" method="post" id="signup-form" novalidate="novalidate">
+        <input  name="username" placeholder="User Name" value=""  data-formValidate="string">
+        <input  name="phone" placeholder="0123456789" value=""  data-formValidate="number">
+        <input  name="email" placeholder="email@domain.ab" value=""  data-formValidate="email">
+        <input  name="password" placeholder="Password" type="password" data-formValidate="password">
+        <input  type="button" value="Submit" id="submit" name="submit" class="submit">
+</form>
+<section>
+
+
+        <script>
+
+(function ( $ ) {
+
+    $.fn.formValidate = function( options ) {
+
+
+        // Default options.
+        var settings = $.extend({
+            // These are the defaults.
+            AttributeUsed       : "data-Formvalidate",
+            TriggerUsed         : "blur",
+            scroll              : true,
+            focusFirstField     : false,
+            hideErrorOnChange   : true,
+            skipHiddenFields    : true,
+            assyncPattern      : true,
+            assyncUrl          : String
+        }, options );
+
+        //match email address
+var emailRegex = '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$';
+//match username
+var usernameRegex = '/^[a-z0-9_-]{3,16}$/';
+//match password
+var passwordRegex = '/^[a-z0-9_-]{6,18}$/';
+//match elements that could contain a phone number
+var phoneNumber = /[0-9-()+]{3,20}/;
+
+
+        var required = true;
+        var valid = true;
+        var message = '';
+
+
+        var inputs = $('form input, form textarea, form select')
+        .not(':input[type=button], :input[type=submit], :input[type=reset]');
+
+        $(inputs).each(function(k){
+            $('.error').remove();
+            var $this = $(this);
+            var inputName = $this.attr('name');
+            var inputVal = $this.val();
+            if(!inputVal) {
+            required = false;
+            //message += 'Please enter your ' + inputName + '\n';
+            $this.after('<span class="error"> Please enter your ' + inputName + '</span>');
+            return false;
+            }
+            else{
+                if($(this).attr(settings.AttributeUsed) != undefined) {
+                    switch($(this).attr(settings.AttributeUsed)) {
+                    case 'number' :
+                    if(!$.isNumeric(inputVal)) {
+                        valid = false;
+                    }
+                    else
+                        valid = true;
+                    break;
+                    case 'string' :
+                    if(!inputVal.match(usernameRegex)) {
+                        valid = false;
+                    }
+                    else
+                        valid = true;
+                    break;
+                    case 'email' :
+                    if(!inputVal.match(emailRegex)) {
+                        valid = false;
+                    }
+                    break;
+                    case 'password' :
+                    if(!inputVal.match(passwordRegex)) {
+                        valid = false;
+                    }
+                    break;
+                    }
+                    console.log('valid',valid);
+
+                    if(!valid){
+                        $this.after('<span class="error"> Please enter a valid ' + $(this).attr(settings.AttributeUsed) +  '</span>');
+                        return false;
+                    }
+
+
+                }
+
+            }
+
+
+
+    });
+    return this;
+
+    };
+
+    $.fn.showMessage = function( message ) {
+
+    }
+
+
+}( jQuery ));
+
+$('form input, form select, form textarea').bind('blur', function(){
+    $("form").formValidate();
+});
+$('#submit').bind('click', function(){
+    console.log('here');
+    $("form").formValidate();
+});
+
+
+</script>
+</body>
+</html>
