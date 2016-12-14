@@ -92,11 +92,15 @@
   //skip hidden field validation
   var shf = options.skipHiddenFields  ? ':input[type=hidden]' : '';
 
-  
-
   var inputs = $('form input, form textarea, form select')
   .not(':input[type=button], :input[type=submit], :input[type=reset]' + ',' + shf );
 
+  if(options.hideErrorOnChange) {
+    inputs.bind('keypress', function(){
+      $(this).hideMessage();    
+    });  
+  }
+  
   $(inputs).each(function(k){
 
     $(this).hideMessage();
@@ -195,8 +199,6 @@ $.formValidate.addRules = function ( rules ){
 
 };
 
-
-
 }( jQuery ));
 
 $.formValidate.addRules({"textOnly" :
@@ -206,10 +208,9 @@ $.formValidate.addRules({"textOnly" :
 
 $('form input, form select, form textarea').bind('blur', function(){
   $("form").formValidate();
+
 });
-$('form input, form select, form textarea').bind('keypress', function(){
-  $(this).hideMessage();    
-});
+
 $('#submit').bind('click', function(){
   $("form").formValidate();    
 });
