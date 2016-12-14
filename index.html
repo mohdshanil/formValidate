@@ -205,13 +205,7 @@ $.formValidate.addRules({"textOnly" :
   }});
 
 $('form input, form select, form textarea').bind('blur', function(){
-  $("form").formValidate({
-    AttributeUsed       : "data-Formvalidate",
-    TriggerUsed         : "blur"
-  });
-
-
-
+  $("form").formValidate();
 });
 $('form input, form select, form textarea').bind('keypress', function(){
   $(this).hideMessage();    
