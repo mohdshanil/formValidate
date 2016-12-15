@@ -1,229 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
-  <title>Form validation plugin</title>
-  <style>
-  html, body{
-    margin: 0;
-  }
-  .signup-container{
-    width: fit-content;
-    height: fit-content;
-    background-color: #DCDCDC;
-    padding: 15px;
-    margin: auto;
-    position: absolute;
-    top: 0;
-    bottom:0;
-    left: 0;
-    right: 0;
-  }
-  #signup-form{
-    padding: 10px;
-  }
-  #signup-form input{
-    display: block;
-    clear: both;
-    margin: 15px;
-    margin-bottom: 5px;
-    width: 300px;
-    padding: 10px;
-    font-size: 14px;
-    color: #332525;
-  }
-  #signup-form input.submit{
-    width: 92%;
-    margin: 15px auto;
-    padding: 12px;
-    border-radius: 2px;
-    background: #679463;
-    color: #fff;
-  }
-  .error{
-    float: right;
-    margin: 0px 16px 5px;
-    color: #E03F3F;
-  }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="jquery.min.js"></script>
+<script src="formValidator.js"></script>
+<title>Form validation plugin</title>
+<style>
+html, body{
+  margin: 0;
+}
+.signup-container{
+  width: fit-content;
+  height: fit-content;
+  background-color: #DCDCDC;
+  padding: 15px;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom:0;
+  left: 0;
+  right: 0;
+}
+#signup-form{
+  padding: 10px;
+}
+#signup-form input{
+  display: block;
+  margin: 15px;
+  margin-bottom: 5px;
+  width: 300px;
+  padding: 10px;
+  font-size: 14px;
+  color: #332525;
+}
+#signup-form input.submit{
+  width: 92%;
+  margin: 15px auto;
+  padding: 12px;
+  border-radius: 2px;
+  background: #679463;
+  color: #fff;
+}
+.error{
+  text-align: right;
+  margin: -6px 16px -17px 16px;
+  color: #E03F3F;
+  display: block;
+}
+.errorField{
+  border: 2px solid #eac3b6;
+}
+</style>
 </head>
 <body>
-  <section class="signup-container">
-    <form action="" method="post" id="signup-form" novalidate="novalidate">
-      <input  name="username" placeholder="User Name" value=""  data-formValidate="textOnly">
-      <input  name="phone" placeholder="0123456789" value=""  data-formValidate="number">
-      <input  name="email" placeholder="email@domain.ab" value=""  data-formValidate="email">
-      <input  name="password" placeholder="Password" type="password" data-formValidate="password">
-      <input  type="button" value="Submit" id="submit" name="submit" class="submit">
-    </form>
-    <section>
+<section class="signup-container">
+  <form action="" method="post" id="signup-form" novalidate="novalidate">
+    <input  name="username" placeholder="User Name" value=""  data-formValidate="textOnly" required>
+    <input  name="phone" placeholder="0123456789" value=""  data-formValidate="number" required>
+    <input  name="email" placeholder="email@domain.ab" value=""  data-formValidate="email" required>
+    <input  name="password" placeholder="Password" type="password" data-formValidate="password" required>
+    <input  type="button" value="Submit" id="submit" name="submit" class="submit">
+  </form>
+<section>
 
 
-      <script>
-
-      (function ( $ ) {
-
-        $.fn.extend({
-          formValidate: function(options) {
-            options = $.extend( true, {}, $.formValidate.defaults, options );
-            var counter = 0;
-            this.each(function() {
-              counter++;
-              console.log('Form', counter);
-
-              new $.formValidate($(this),options);
-            });
-            return this;
-          }
-        });
-
-
-        $.formValidate = function( obj, options ) {
-
-          var emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$/;
-          var usernameRegex = /^[a-z0-9_-]{3,16}$/;
-          var numberRegex = /^[0-9]*$/;
-          var stringRegex = /^\w+$/;
-          var passwordRegex = /^[a-z0-9_-]{6,18}$/;
-          var phoneNumber = /[0-9-()+]{3,20}/;
-
-
-          var required = true;
-          var message = '';
-  //skip hidden field validation
-  var shf = options.skipHiddenFields  ? ':input[type=hidden]' : '';
-
-  var inputs = $('form input, form textarea, form select')
-  .not(':input[type=button], :input[type=submit], :input[type=reset]' + ',' + shf );
-
-  if(options.hideErrorOnChange) {
-    inputs.bind('keypress', function(){
-      $(this).hideMessage();
-    });
-  }
-    $(this).hideMessage();
-  $(inputs).each(function(k){
-
-
-
-    var $this = $(this);
-    var inputName = $this.attr('name');
-    var inputVal = $this.val();
-
-      if(!inputVal) { // all fields are mandatory
-        required = false;
-
-        $this.before('<span class="error" id="error_'+inputName+'"> Please enter your ' + inputName + '</span>');
-        //return false;
-      }
-      else{
-
-          if($(this).attr(options.AttributeUsed) != undefined) { //if data-SELECTOR is set on element
-            switch($(this).attr(options.AttributeUsed)) {
-              case 'number' :
-              matchRegex = numberRegex;
-              if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
-                return false;
-              }
-              break;
-              case 'string' :
-              matchRegex = stringRegex;
-              if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
-                return false;
-              }
-              break;
-              case 'email' :
-              matchRegex = emailRegex;
-              if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
-                return false;
-              }
-              break;
-              case 'password' :
-              matchRegex = passwordRegex;
-              if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
-                return false;
-              }
-              break;
-              default :
-              var realArray = $.makeArray( options.rules );
-              var param = $(this).attr(options.AttributeUsed);
-              var paramMatch = false;
-              paramMatch = $.map(realArray, function(obj) {
-
-                if(Object.keys(obj) == param )
-                  return obj;
-              });
-              if(paramMatch)
-              {
-                var valid =  paramMatch[0][param](inputVal);
-
-                if(!valid) {
-                  $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
-                  return false;
-                }
-              }
-
-            }
-
-          }
-        }
+  <script>
+    $(document).ready(function(){
+      // additional rule textOnly for user name
+      $.formValidate.addRules({"textOnly" :
+       function(value, element) {
+         return !/[0-9]+$/.test(value);
+       }});
+      //initialize plugin with options
+      $('form input, form select, form textarea').bind('blur', function(){
+       $("form").formValidate({TriggerUsed:'blur'});
       });
-return this;
-
-};
-
-$.fn.hideMessage = function( element ) {
-  var name = element.attr('name');
-  $('.error_"'+name+'"').remove();
-}
-
-// option defaults
-$.formValidate.defaults = {
-  AttributeUsed       : "data-Formvalidate",
-  TriggerUsed         : "blur",
-  scroll              : true,
-  focusFirstField     : false,
-  hideErrorOnChange   : true,
-  skipHiddenFields    : true,
-  assyncPattern       : true,
-  assyncUrl           : '',
-  rules               : {}
-
-};
-$.formValidate.addRules = function ( rules ){
-
-  rules = ({ "rules" : rules});
-  $.extend( true, $.formValidate.defaults, rules );
-
-};
-
-}( jQuery ));
-
-$.formValidate.addRules({"textOnly" :
-  function(value, element) {
-    return !/[0-9]$/.test(value);
-  }});
-
-$('form input, form select, form textarea').bind('blur', function(){debugger;
-  $("form").formValidate();
-
-});
-
-$('form input, form select, form textarea').bind('focus', function(){debugger;
-  
-  $(this).hideMessage();
-});
-
-$('#submit').bind('click', function(){
-  $("form").formValidate();
-});
-
-</script>
+      //validate on form submission
+      $('#submit').bind('click', function(){
+       $("form").formValidate();
+      });
+    });
+  </script>
 </body>
 </html>
