@@ -68,8 +68,11 @@
         $.fn.extend({
           formValidate: function(options) {
             options = $.extend( true, {}, $.formValidate.defaults, options );
-
+            var counter = 0;
             this.each(function() {
+              counter++;
+              console.log('Form', counter);
+
               new $.formValidate($(this),options);
             });
             return this;
@@ -80,7 +83,7 @@
         $.formValidate = function( obj, options ) {
 
           var emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,4}$/;
-          var usernameRegex = /^[a-z0-9_-]{3,16}$/; 
+          var usernameRegex = /^[a-z0-9_-]{3,16}$/;
           var numberRegex = /^[0-9]*$/;
           var stringRegex = /^\w+$/;
           var passwordRegex = /^[a-z0-9_-]{6,18}$/;
@@ -97,13 +100,13 @@
 
   if(options.hideErrorOnChange) {
     inputs.bind('keypress', function(){
-      $(this).hideMessage();    
-    });  
+      $(this).hideMessage();
+    });
   }
-  
+    $(this).hideMessage();
   $(inputs).each(function(k){
 
-    $(this).hideMessage();
+
 
     var $this = $(this);
     var inputName = $this.attr('name');
@@ -112,8 +115,8 @@
       if(!inputVal) { // all fields are mandatory
         required = false;
 
-        $this.before('<span class="error"> Please enter your ' + inputName + '</span>');
-        return false;
+        $this.before('<span class="error" id="error_'+inputName+'"> Please enter your ' + inputName + '</span>');
+        //return false;
       }
       else{
 
@@ -122,28 +125,28 @@
               case 'number' :
               matchRegex = numberRegex;
               if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');                
+                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
                 return false;
               }
               break;
               case 'string' :
               matchRegex = stringRegex;
               if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');                
+                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
                 return false;
               }
               break;
               case 'email' :
               matchRegex = emailRegex;
               if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');                
+                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
                 return false;
               }
               break;
               case 'password' :
               matchRegex = passwordRegex;
               if(!inputVal.match(matchRegex)) {
-                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');                
+                $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
                 return false;
               }
               break;
@@ -161,22 +164,23 @@
                 var valid =  paramMatch[0][param](inputVal);
 
                 if(!valid) {
-                  $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');                
+                  $this.before('<span class="error"> Please enter a valid ' + $(this).attr(options.AttributeUsed) +  '</span>');
                   return false;
                 }
               }
 
             }
 
-          }                
-        }                
+          }
+        }
       });
 return this;
 
 };
 
-$.fn.hideMessage = function( message ) {
-  $('.error').remove();
+$.fn.hideMessage = function( element ) {
+  var name = element.attr('name');
+  $('.error_"'+name+'"').remove();
 }
 
 // option defaults
@@ -190,7 +194,7 @@ $.formValidate.defaults = {
   assyncPattern       : true,
   assyncUrl           : '',
   rules               : {}
-  
+
 };
 $.formValidate.addRules = function ( rules ){
 
@@ -206,13 +210,18 @@ $.formValidate.addRules({"textOnly" :
     return !/[0-9]$/.test(value);
   }});
 
-$('form input, form select, form textarea').bind('blur', function(){
+$('form input, form select, form textarea').bind('blur', function(){debugger;
   $("form").formValidate();
 
 });
 
+$('form input, form select, form textarea').bind('focus', function(){debugger;
+  
+  $(this).hideMessage();
+});
+
 $('#submit').bind('click', function(){
-  $("form").formValidate();    
+  $("form").formValidate();
 });
 
 </script>
